@@ -144,4 +144,8 @@ public class Download implements Runnable, ProgressListener {
 	public File getOutput() {
 		return output;
 	}
+
+	public Exception getException() {
+		return exception;
+	}
 }

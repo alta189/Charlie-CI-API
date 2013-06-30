@@ -4,6 +4,7 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<!-- Project Information -->
 	<name>Charlie CI API</name>
 	<groupId>com.alta189.charlie</groupId>
 	<artifactId>charlie-api</artifactId>
@@ -11,6 +12,7 @@
 	<url>http://charlie.alta189.com</url>
 	<description>Charlie CI: Continuous integration server written in java; inspired by Jenkins CI.</description>
 
+	<!-- License Information -->
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License</name>
@@ -19,6 +21,7 @@
 		</license>
 	</licenses>
 
+	<!-- Properties -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<buildNumber>-1</buildNumber>
@@ -38,6 +41,7 @@
 		<version.jmockit>1.3</version.jmockit>
 	</properties>
 
+	<!-- Developer Information -->
 	<developers>
 		<developer>
 			<id>alta189</id>
@@ -52,6 +56,20 @@
 		</developer>
 	</developers>
 
+	<!-- Source Code Management -->
+	<scm>
+		<developerConnection>scm:git:git@github.com:alta189/Charlie-CI-API.git</developerConnection>
+		<connection>scm:git:git://github.com/alta189/Charlie-CI-API.git</connection>
+		<url>https://github.com/alta189/Charlie-CI-API</url>
+	</scm>
+
+	<!-- Issue Tracker -->
+	<issueManagement>
+		<system>github-issues</system>
+		<url>https://github.com/alta189/Charlie-CI/issues</url>
+	</issueManagement>
+
+	<!-- Project Dependencies -->
 	<dependencies>
 		<!-- Guava -->
 		<dependency>

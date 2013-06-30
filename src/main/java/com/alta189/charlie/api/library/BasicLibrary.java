@@ -76,7 +76,7 @@ public class BasicLibrary implements Library {
 		this.md5 = md5;
 
 		StringBuilder path = new StringBuilder().append(removeSpecialChars(name)).append(File.separator).append(removeSpecialChars(version)).append(EXTENSION);
-		file = new File(Charlie.getLibraryManager().getDirectory(BasicLibrary.class), path.toString());
+		file = new File(Charlie.getLibraryManager().getProvider(BasicLibrary.class).getCacheRoot(), path.toString());
 
 		identifier = new StringBuilder(name).append(":").append(version).toString();
 	}

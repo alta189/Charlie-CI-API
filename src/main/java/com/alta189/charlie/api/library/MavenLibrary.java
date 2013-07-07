@@ -19,5 +19,85 @@
  */
 package com.alta189.charlie.api.library;
 
-public class MavenLibrary {
+import java.io.File;
+
+public class MavenLibrary implements Library {
+	/**
+	 * Library group id
+	 */
+	private final String groupId;
+	/**
+	 * Library artifact id
+	 */
+	private final String artifactId;
+	/**
+	 * Library version
+	 */
+	private final String version;
+	/**
+	 * Library cache
+	 */
+	private final File file;
+
+	protected MavenLibrary(String groupId, String artifactId, String version, File file) {
+		this.version = version;
+		this.file = file;
+		this.artifactId = artifactId;
+		this.groupId = groupId;
+	}
+
+	/**
+	 * <p>
+	 *     Returns the name of the library
+	 * </p>
+	 * <p>
+	 *     The name is defined by groupId:artifactId
+	 * </p>
+	 *
+	 * @return name
+	 */
+	@Override
+	public String getName() {
+		return new StringBuilder().append(groupId).append(":").append(artifactId).toString();
+	}
+
+	/**
+	 * Returns the version string of the library
+	 *
+	 * @return version
+	 */
+	@Override
+	public String getVersion() {
+		return version;
+	}
+
+	/**
+	 * <p>
+	 * Returns locally cached file of library
+	 * </p>
+	 * <p>
+	 * File should exist
+	 * </p>
+	 *
+	 * @return file
+	 */
+	@Override
+	public File getFile() {
+		return file;
+	}
+
+	/**
+	 * <p>
+	 *     Returns a string that is unique to this library,
+	 *	   generally will be the same output as {@code getName() + ":" +  getVersion()}
+	 * </p>
+	 * <p>
+	 *     Maven libraries identifiers are "groupId:artifactId:version"
+	 * </p>
+	 * @return indentifier
+	 */
+	@Override
+	public String getIdentifier() {
+		return new StringBuilder().append(groupId).append(":").append(artifactId).append(":").append(version).toString();
+	}
 }

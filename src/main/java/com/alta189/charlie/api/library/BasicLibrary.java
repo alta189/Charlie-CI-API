@@ -57,10 +57,6 @@ public class BasicLibrary implements Library {
 	 * Library cache
 	 */
 	private final File file;
-	/**
-	 * Library identifier
-	 */
-	private final String identifier;
 
 	/**
 	 * <p>
@@ -75,7 +71,7 @@ public class BasicLibrary implements Library {
 	 * @param url  the url of the library, not null
 	 * @param md5  the md5 of the library, if null md5 checks will not be performed
 	 */
-	public BasicLibrary(String name, String version, String url, String md5) {
+	protected BasicLibrary(String name, String version, String url, String md5) {
 		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("name cannot be null or empty");
 		}
@@ -96,8 +92,6 @@ public class BasicLibrary implements Library {
 
 		StringBuilder path = new StringBuilder().append(removeSpecialChars(name)).append(File.separator).append(removeSpecialChars(version)).append(EXTENSION);
 		file = new File(Charlie.getLibraryManager().getProvider(BasicLibrary.class).getCacheRoot(), path.toString());
-
-		identifier = new StringBuilder(name).append(":").append(version).toString();
 	}
 
 	/**
@@ -119,6 +113,7 @@ public class BasicLibrary implements Library {
 	 * </p>
 	 * @return file
 	 */
+	@Override
 	public File getFile() {
 		return file;
 	}
@@ -137,6 +132,7 @@ public class BasicLibrary implements Library {
 	 *
 	 * @return version
 	 */
+	@Override
 	public String getVersion() {
 		return version;
 	}
@@ -146,6 +142,7 @@ public class BasicLibrary implements Library {
 	 *
 	 * @return name
 	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -172,6 +169,6 @@ public class BasicLibrary implements Library {
 	 */
 	@Override
 	public String getIdentifier() {
-		return identifier;
+		return new StringBuilder(name).append(":").append(version).toString();
 	}
 }

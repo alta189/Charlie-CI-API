@@ -19,8 +19,12 @@
  */
 package com.alta189.charlie.api.library;
 
-public class LibraryManager {
+import java.io.File;
 
+public class LibraryManager {
+	public File getCacheDirectory() {
+		return null;
+	}
 	public LibraryProvider getProvider(Class<? extends Library> clazz) {
 		return null;
 	}

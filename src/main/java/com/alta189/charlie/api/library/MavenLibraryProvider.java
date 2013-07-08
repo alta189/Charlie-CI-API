@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.alta189.charlie.api.exceptions.LibraryNotFoundException;
 import com.alta189.charlie.api.library.maven.AetherModule;
+import com.alta189.charlie.api.library.maven.MavenRepository;
 import com.google.inject.Guice;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
@@ -91,6 +92,19 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 */
 	@Override
 	public MavenLibrary getLibrary(String identifier) throws LibraryNotFoundException {
+		return getLibrary(identifier, null);
+	}
+
+	/**
+	 * Returns an instance of a library based on its identifier {@see Library.getIdentifier()}
+	 *
+	 * @param identifier libraries identifier, not null
+	 * @param repositories  maven repositories to search
+	 * @return instance of the library
+	 * @throws com.alta189.charlie.api.exceptions.LibraryNotFoundException thrown if the library cannot be found
+	 */
+
+	public MavenLibrary getLibrary(String identifier, MavenRepository... repositories) throws LibraryNotFoundException {
 		try {
 			RepositorySystem repoSystem = newRepositorySystem();
 
@@ -131,6 +145,19 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 */
 	@Override
 	public MavenLibrary getLatestVersion(String name) throws LibraryNotFoundException {
+		return getLibrary(name, null);
+	}
+
+	/**
+	 * Returns the latest version of the library that the provider
+	 * can find.
+	 *
+	 * @param name name of the library
+	 * @param repositories  maven repositories to search
+	 * @return instance of the library
+	 * @throws com.alta189.charlie.api.exceptions.LibraryNotFoundException thrown if the library cannot be found
+	 */
+	public MavenLibrary getLatestVersion(String name, MavenRepository... repositories) throws LibraryNotFoundException {
 		Artifact artifact = new DefaultArtifact(name + ":[0,)");
 
 		RemoteRepository repo = newCentralRepository();
@@ -138,6 +165,15 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 		VersionRangeRequest rangeRequest = new VersionRangeRequest();
 		rangeRequest.setArtifact(artifact);
 		rangeRequest.addRepository(repo);
+
+		if (repositories != null && repositories.length > 0) {
+			for (MavenRepository mvnRepo : repositories) {
+				RemoteRepository repository = new RemoteRepository.Builder(mvnRepo.getId(), mvnRepo.getType(), mvnRepo.getUrl()).build();
+				if (repository != null) {
+					rangeRequest.addRepository(repository);
+				}
+			}
+		}
 
 		VersionRangeResult rangeResult = null;
 		try {

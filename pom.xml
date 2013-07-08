@@ -31,6 +31,8 @@
 		<version.guava>14.0.1</version.guava>
 		<version.guice>3.0</version.guice>
 		<version.alta-commons>1.0.0-SNAPSHOT</version.alta-commons>
+		<version.gson>2.2.4</version.gson>
+		<version.gson-xml>0.1.4</version.gson-xml>
 		<version.aether>0.9.0.M2</version.aether>
 		<version.maven>3.1.0</version.maven>
 		<version.wagon>1.0</version.wagon>
@@ -95,6 +97,18 @@
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>${version.guice}</version>
+		</dependency>
+		<!-- Gson -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${version.gson}</version>
+		</dependency>
+		<!--Gson XML -->
+		<dependency>
+			<groupId>com.stanfy</groupId>
+			<artifactId>gson-xml-java</artifactId>
+			<version>${version.gson-xml}</version>
 		</dependency>
 
 		<!-- Maven Library Download Dependencies -->

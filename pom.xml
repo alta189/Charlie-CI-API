@@ -36,7 +36,7 @@
 
 		<!-- Apache Commons Versions -->
 		<version.commons.io>2.4</version.commons.io>
-		<version.commons.lang3></version.commons.lang3>
+		<version.commons.lang3>3.1</version.commons.lang3>
 
 		<!-- Maven Library Download Versions -->
 		<version.aether>0.9.0.M2</version.aether>

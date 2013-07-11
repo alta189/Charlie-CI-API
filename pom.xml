@@ -11,6 +11,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<url>http://charlie.alta189.com</url>
 	<description>Charlie CI: Continuous integration server written in java; inspired by Jenkins CI.</description>
+	<inceptionYear>2013</inceptionYear>
 
 	<!-- License Information -->
 	<licenses>

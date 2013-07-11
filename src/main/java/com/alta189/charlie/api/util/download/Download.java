@@ -1,7 +1,7 @@
 /*
  * This file is part of Charlie CI API.
  *
- * Copyright (c) ${project.inceptionYear}, Stephen Williams (alta189) <http://charlie.alta189.com/>
+ * Copyright (c) 2013, Stephen Williams (alta189) <http://charlie.alta189.com/>
  * Charlie CI API is licensed under the GNU Lesser General Public License.
  *
  * Charlie CI API is free software: you can redistribute it and/or modify

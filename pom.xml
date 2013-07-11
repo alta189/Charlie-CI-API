@@ -33,6 +33,12 @@
 		<version.alta-commons>1.0.0-SNAPSHOT</version.alta-commons>
 		<version.gson>2.2.4</version.gson>
 		<version.gson-xml>0.1.4</version.gson-xml>
+
+		<!-- Apache Commons Versions -->
+		<version.commons.io>2.4</version.commons.io>
+		<version.commons.lang3></version.commons.lang3>
+
+		<!-- Maven Library Download Versions -->
 		<version.aether>0.9.0.M2</version.aether>
 		<version.maven>3.1.0</version.maven>
 		<version.wagon>1.0</version.wagon>
@@ -110,6 +116,20 @@
 			<artifactId>gson-xml-java</artifactId>
 			<version>${version.gson-xml}</version>
 		</dependency>
+		<!-- Apache Commons -->
+		<!-- commons-io -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${version.commons.io}</version>
+		</dependency>
+		<!-- commons-lang -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${version.commons.lang3}</version>
+		</dependency>
+
 
 		<!-- Maven Library Download Dependencies -->
 		<dependency>

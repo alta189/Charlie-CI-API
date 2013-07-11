@@ -20,6 +20,7 @@
 package com.alta189.charlie.api.library;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	private final RepositorySystem repoSystem;
 	private final RepositorySystemSession session;
 	private final Map<String, RemoteRepository> repositories;
-	private final Map<String, Library> libraries;
+	private final Map<String, MavenLibrary> libraries;
 	private final MavenRepository central;
 
 	public MavenLibraryProvider(LibraryManager manager) {
@@ -61,7 +62,7 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 		repoSystem = newRepositorySystem();
 		session = newSession(repoSystem);
 		repositories = new HashMap<String, RemoteRepository>();
-		libraries = new HashMap<String, Library>();
+		libraries = new HashMap<String, MavenLibrary>();
 
 		// Resolve Maven Central
 		central = new MavenRepository("central", "default", "http://repo1.maven.org/maven2/");
@@ -112,6 +113,9 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 * @throws com.alta189.charlie.api.exceptions.LibraryNotFoundException thrown if the library cannot be found
 	 */
 	public MavenLibrary getLibrary(String identifier, MavenRepository... repositories) throws LibraryNotFoundException {
+		if (libraries.get(identifier) != null) {
+			return libraries.get(identifier);
+		}
 		try {
 			RepositorySystem repoSystem = newRepositorySystem();
 
@@ -147,7 +151,11 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 				throw new NullPointerException("Artifact was null");
 			}
 
-			return new MavenLibrary(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion(), artifact.getFile());
+			MavenLibrary library =  new MavenLibrary(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion(), artifact.getFile());
+
+			libraries.put(identifier, library);
+
+			return library;
 		} catch (Exception e) {
 			throw new LibraryNotFoundException(new StringBuilder().append("Could not find  maven library '").append(identifier).append("'").toString(), e);
 		}
@@ -223,7 +231,9 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	}
 
 	public List<MavenLibrary> readPom(File pomFile) throws LibraryNotFoundException {
+		List<MavenLibrary> result = new ArrayList<MavenLibrary>();
 
+		return result;
 	}
 
 	/**

@@ -20,13 +20,16 @@
 package com.alta189.charlie.api.library;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.alta189.charlie.api.exceptions.LibraryNotFoundException;
 import com.alta189.charlie.api.library.maven.AetherModule;
 import com.alta189.charlie.api.library.maven.MavenRepository;
 import com.google.inject.Guice;
 
+import org.apache.commons.lang3.Validate;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -48,16 +51,21 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	private final File cacheRoot;
 	private final RepositorySystem repoSystem;
 	private final RepositorySystemSession session;
+	private final Map<String, RemoteRepository> repositories;
+	private final Map<String, Library> libraries;
+	private final MavenRepository central;
 
 	public MavenLibraryProvider(LibraryManager manager) {
 		cacheRoot = new File(manager.getCacheDirectory(), "maven");
 
 		repoSystem = newRepositorySystem();
 		session = newSession(repoSystem);
-	}
+		repositories = new HashMap<String, RemoteRepository>();
+		libraries = new HashMap<String, Library>();
 
-	public RemoteRepository newCentralRepository() {
-		return new RemoteRepository.Builder("central", "default", "http://repo1.maven.org/maven2/").build();
+		// Resolve Maven Central
+		central = new MavenRepository("central", "default", "http://repo1.maven.org/maven2/");
+		resolveRepository(central);
 	}
 
 	private RepositorySystem newRepositorySystem() {
@@ -99,23 +107,33 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 * Returns an instance of a library based on its identifier {@see Library.getIdentifier()}
 	 *
 	 * @param identifier libraries identifier, not null
-	 * @param repositories  maven repositories to search
+	 * @param repositories maven repositories to search
 	 * @return instance of the library
 	 * @throws com.alta189.charlie.api.exceptions.LibraryNotFoundException thrown if the library cannot be found
 	 */
-
 	public MavenLibrary getLibrary(String identifier, MavenRepository... repositories) throws LibraryNotFoundException {
 		try {
 			RepositorySystem repoSystem = newRepositorySystem();
 
 			RepositorySystemSession session = newSession(repoSystem);
 
-			Dependency dependency = new Dependency(new DefaultArtifact("org.apache.maven:maven-profile:2.2.1"), "compile");
-			RemoteRepository central = new RemoteRepository.Builder("central", "default", "http://repo1.maven.org/maven2/").build();
+			Dependency dependency = new Dependency(new DefaultArtifact(identifier), "compile");
+			RemoteRepository central = resolveRepository(this.central);
 
 			CollectRequest collectRequest = new CollectRequest();
 			collectRequest.setRoot(dependency);
 			collectRequest.addRepository(central);
+
+			if (repositories != null && repositories.length > 0) {
+				for (MavenRepository mvnRepo : repositories) {
+					RemoteRepository repository = resolveRepository(mvnRepo);
+					if (repository != null) {
+						collectRequest.addRepository(repository);
+					}
+				}
+			}
+
+
 			DependencyNode node = repoSystem.collectDependencies(session, collectRequest).getRoot();
 
 			DependencyRequest dependencyRequest = new DependencyRequest();
@@ -153,14 +171,14 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 * can find.
 	 *
 	 * @param name name of the library
-	 * @param repositories  maven repositories to search
+	 * @param repositories maven repositories to search
 	 * @return instance of the library
 	 * @throws com.alta189.charlie.api.exceptions.LibraryNotFoundException thrown if the library cannot be found
 	 */
 	public MavenLibrary getLatestVersion(String name, MavenRepository... repositories) throws LibraryNotFoundException {
 		Artifact artifact = new DefaultArtifact(name + ":[0,)");
 
-		RemoteRepository repo = newCentralRepository();
+		RemoteRepository repo = resolveRepository(central);
 
 		VersionRangeRequest rangeRequest = new VersionRangeRequest();
 		rangeRequest.setArtifact(artifact);
@@ -168,7 +186,7 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 
 		if (repositories != null && repositories.length > 0) {
 			for (MavenRepository mvnRepo : repositories) {
-				RemoteRepository repository = new RemoteRepository.Builder(mvnRepo.getId(), mvnRepo.getType(), mvnRepo.getUrl()).build();
+				RemoteRepository repository = resolveRepository(mvnRepo);
 				if (repository != null) {
 					rangeRequest.addRepository(repository);
 				}
@@ -187,7 +205,13 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	}
 
 	/**
+	 * <p>
 	 * Reads a file and gets the libraries defined by the file
+	 * </p>
+	 * <br />
+	 * <p>
+	 * NOTE: Cannot handle POM.xml! {@see readPom()}
+	 * </p>
 	 *
 	 * @param file file that contains library definitions
 	 * @return list of libraries
@@ -196,6 +220,10 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	@Override
 	public List<MavenLibrary> getLibraries(File file) throws LibraryNotFoundException {
 		return null;
+	}
+
+	public List<MavenLibrary> readPom(File pomFile) throws LibraryNotFoundException {
+
 	}
 
 	/**
@@ -209,5 +237,41 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	public List<MavenLibrary> getLibraries(String raw) throws LibraryNotFoundException {
 
 		return null;
+	}
+
+	/**
+	 * Resolves a maven repository
+	 *
+	 * @param mavenRepository information used to resolve repository
+	 * @return
+	 */
+	public RemoteRepository resolveRepository(MavenRepository mavenRepository) {
+		Validate.notNull(mavenRepository);
+		return resolveRepository(mavenRepository.getId(), mavenRepository.getType(), mavenRepository.getUrl());
+	}
+
+	/**
+	 * Resolves a maven repository and caches in the repositories map
+	 *
+	 * @param id repository id, must be unique and not null
+	 * @param type repository type, may be null
+	 * @param url repository url, not null
+	 * @return
+	 */
+	public RemoteRepository resolveRepository(String id, String type, String url) {
+		Validate.notNull(id);
+		Validate.notNull(url);
+
+		if (repositories.containsKey(id) && repositories.get(id) != null) {
+			return repositories.get(id);
+		}
+
+		RemoteRepository repository = new RemoteRepository.Builder(id, type, url).build();
+
+		if (repository != null) {
+			repositories.put(id, repository);
+		}
+
+		return repository;
 	}
 }

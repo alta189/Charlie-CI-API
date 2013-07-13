@@ -47,4 +47,8 @@ public class MavenLibraryDefinition {
 	public void setVersion(String version) {
 		this.version = version;
 	}
+
+	public String getIdentifier() {
+		return new StringBuilder(groupId).append(":").append(artifactId).append(":").append(version).toString();
+	}
 }

@@ -20,16 +20,23 @@
 package com.alta189.charlie.api.library;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.alta189.charlie.api.exceptions.LibraryNotFoundException;
+import com.alta189.charlie.api.library.definition.MavenLibraryDefinition;
+import com.alta189.charlie.api.library.definition.MavenLibraryDefinitionFile;
 import com.alta189.charlie.api.library.maven.AetherModule;
 import com.alta189.charlie.api.library.maven.MavenRepository;
+import com.alta189.charlie.api.util.GsonUtils;
 import com.google.inject.Guice;
+import com.stanfy.gsonxml.GsonXml;
+import com.stanfy.gsonxml.GsonXmlBuilder;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -38,15 +45,23 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	private final File cacheRoot;
@@ -137,7 +152,6 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 				}
 			}
 
-
 			DependencyNode node = repoSystem.collectDependencies(session, collectRequest).getRoot();
 
 			DependencyRequest dependencyRequest = new DependencyRequest();
@@ -151,7 +165,7 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 				throw new NullPointerException("Artifact was null");
 			}
 
-			MavenLibrary library =  new MavenLibrary(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion(), artifact.getFile());
+			MavenLibrary library = new MavenLibrary(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion(), artifact.getFile());
 
 			libraries.put(identifier, library);
 
@@ -227,13 +241,20 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 */
 	@Override
 	public List<MavenLibrary> getLibraries(File file) throws LibraryNotFoundException {
-		return null;
-	}
+		if (file == null || !file.exists()) {
+			throw new LibraryNotFoundException("File was null or empty");
+		}
 
-	public List<MavenLibrary> readPom(File pomFile) throws LibraryNotFoundException {
-		List<MavenLibrary> result = new ArrayList<MavenLibrary>();
+		try {
 
-		return result;
+			if (file.getName().toUpperCase().endsWith("pom.xml")) {
+				return readPom(FileUtils.readFileToString(file));
+			} else {
+				return getLibraries(FileUtils.readFileToString(file));
+			}
+		} catch (IOException e) {
+			throw new LibraryNotFoundException(new StringBuilder("Error when reading maven library definition file '").append(file.getName()).append("'").toString(), e);
+		}
 	}
 
 	/**
@@ -245,15 +266,120 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 */
 	@Override
 	public List<MavenLibrary> getLibraries(String raw) throws LibraryNotFoundException {
+		List<MavenLibrary> result = new ArrayList<MavenLibrary>();
+		GsonXml gson = GsonUtils.getGsonXmlInstance();
 
-		return null;
+		MavenLibraryDefinitionFile defs = gson.fromXml(raw, MavenLibraryDefinitionFile.class);
+		MavenRepository[] repos = defs.getRepositories().toArray(new MavenRepository[0]);
+
+		for (MavenLibraryDefinition def : defs.getLibraries()) {
+			MavenLibrary library = getLibrary(def.getIdentifier(), repos);
+			if (library == null) {
+				throw new LibraryNotFoundException(new StringBuilder("Unable to find maven library '").append(def.getIdentifier()).append("'").toString());
+			}
+
+			result.add(library);
+		}
+
+		return result;
+	}
+
+	/**
+	 * <p>
+	 *     Special handling of a maven POM.XML file
+	 * </p>
+	 * <p>
+	 *     While we use the same structure for a regular maven library definition file,
+	 *     we want to do special handling of a pom file because it does not
+	 *     require that transitive dependencies, or dependencies of dependencies,
+	 *     to be listed while the maven definition file does
+	 * </p>
+	 * @param pomFile  string contents of a pom.xml file, may not be null
+	 * @return list of maven libraries
+	 * @throws LibraryNotFoundException
+	 */
+	private List<MavenLibrary> readPom(String pomFile) throws LibraryNotFoundException {
+		Validate.notNull(pomFile);
+
+		List<MavenLibrary> result = new ArrayList<MavenLibrary>();
+		Map<String, Artifact> artifacts = new HashMap<String, Artifact>();
+
+		RepositorySystem repoSystem = newRepositorySystem();
+		RepositorySystemSession session = newSession(repoSystem);
+
+		GsonXml gson = GsonUtils.getGsonXmlInstance();
+		MavenLibraryDefinitionFile defs = gson.fromXml(pomFile, MavenLibraryDefinitionFile.class);
+		MavenRepository[] repos = defs.getRepositories().toArray(new MavenRepository[0]);
+
+		for (MavenLibraryDefinition def : defs.getLibraries()) {
+			// Process listed enchantments
+
+			try {
+				if (artifacts.containsKey(def.getIdentifier())) {
+					continue;
+				}
+
+				Artifact parentArtifact = new DefaultArtifact(def.getIdentifier());
+				DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE);
+
+				RemoteRepository central = resolveRepository(this.central);
+
+				CollectRequest collectRequest = new CollectRequest();
+				collectRequest.setRoot(new Dependency(parentArtifact, JavaScopes.COMPILE));
+				collectRequest.addRepository(central);
+
+				if (repos != null && repos.length > 0) {
+					for (MavenRepository mvnRepo : repos) {
+						RemoteRepository repository = resolveRepository(mvnRepo);
+						if (repository != null) {
+							collectRequest.addRepository(repository);
+						}
+					}
+				}
+
+				DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
+
+				List<ArtifactResult> artifactResults = repoSystem.resolveDependencies(session, dependencyRequest).getArtifactResults();
+
+				for (ArtifactResult artifactResult : artifactResults) {
+					Artifact artifact = artifactResult.getArtifact();
+					String identifier = new StringBuilder(artifact.getGroupId()).append(":").append(artifact.getArtifactId()).append(":").append(artifact.getBaseVersion()).toString();
+
+					if (artifact.getFile() == null || !artifact.getFile().exists()) {
+						throw new LibraryNotFoundException(new StringBuilder().append("Download of  maven library '").append(def.getIdentifier()).append("' was unsuccessful").toString());
+					}
+
+					if (!artifacts.containsKey(identifier)) {
+						artifacts.put(identifier, artifact);
+					}
+				}
+
+			} catch (LibraryNotFoundException e) {
+			    throw e; // We dont want to wrap LibraryNotFoundException in a LibraryNotFoundException
+			} catch (Exception e) {
+				throw new LibraryNotFoundException(new StringBuilder().append("Could not find maven library '").append(def.getIdentifier()).append("'").toString(), e);
+			}
+		}
+
+		for (String identifier : artifacts.keySet()) {
+			Artifact artifact = artifacts.get(identifier);
+			MavenLibrary library = new MavenLibrary(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion(), artifact.getFile());
+
+			if (libraries.containsKey(identifier)) {
+				libraries.put(identifier, library);
+			}
+
+			result.add(library);
+		}
+
+		return result;
 	}
 
 	/**
 	 * Resolves a maven repository
 	 *
-	 * @param mavenRepository information used to resolve repository
-	 * @return
+	 * @param mavenRepository information used to resolve repository, not null
+	 * @return aether remote repository
 	 */
 	public RemoteRepository resolveRepository(MavenRepository mavenRepository) {
 		Validate.notNull(mavenRepository);
@@ -266,7 +392,7 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	 * @param id repository id, must be unique and not null
 	 * @param type repository type, may be null
 	 * @param url repository url, not null
-	 * @return
+	 * @return aether remote repository
 	 */
 	public RemoteRepository resolveRepository(String id, String type, String url) {
 		Validate.notNull(id);

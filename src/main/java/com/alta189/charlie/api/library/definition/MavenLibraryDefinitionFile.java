@@ -22,15 +22,15 @@ package com.alta189.charlie.api.library.definition;
 import java.util.List;
 
 public class MavenLibraryDefinitionFile {
-	private List<MavenLibraryDefinition> libraries;
+	private List<MavenLibraryDefinition> definitions;
 	private List<MavenRepositoryDefinition> repositories;
 
-	public List<MavenLibraryDefinition> getLibraries() {
-		return libraries;
+	public List<MavenLibraryDefinition> getDefinitions() {
+		return definitions;
 	}
 
-	public void setLibraries(List<MavenLibraryDefinition> libraries) {
-		this.libraries = libraries;
+	public void setDefinitions(List<MavenLibraryDefinition> definitions) {
+		this.definitions = definitions;
 	}
 
 	public List<MavenRepositoryDefinition> getRepositories() {

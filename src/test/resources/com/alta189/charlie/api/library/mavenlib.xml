@@ -1,0 +1,17 @@
+<definitions>
+	<repositories>
+		<repository>
+			<id>alta-nexus</id>
+			<type>release</type>
+			<url>http://nexus.alta189.com/content/groups/public/</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.alta189.test</groupId>
+			<artifactId>definition</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+	</dependencies>
+</definitions>

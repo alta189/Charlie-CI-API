@@ -19,6 +19,7 @@
  */
 package com.alta189.charlie.api.library;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,14 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.alta189.charlie.api.exceptions.LibraryNotFoundException;
+import com.alta189.charlie.api.library.definition.MavenDefinitionReader;
 import com.alta189.charlie.api.library.definition.MavenLibraryDefinition;
 import com.alta189.charlie.api.library.definition.MavenLibraryDefinitionFile;
 import com.alta189.charlie.api.library.maven.AetherModule;
 import com.alta189.charlie.api.library.maven.MavenRepository;
-import com.alta189.charlie.api.util.GsonUtils;
 import com.google.inject.Guice;
-import com.stanfy.gsonxml.GsonXml;
-import com.stanfy.gsonxml.GsonXmlBuilder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
@@ -45,7 +44,6 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
-import org.eclipse.aether.collection.DependencyCollectionException;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.graph.DependencyNode;
@@ -53,15 +51,13 @@ import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
-import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import org.xml.sax.SAXException;
 
 public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	private final File cacheRoot;
@@ -267,12 +263,16 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	@Override
 	public List<MavenLibrary> getLibraries(String raw) throws LibraryNotFoundException {
 		List<MavenLibrary> result = new ArrayList<MavenLibrary>();
-		GsonXml gson = GsonUtils.getGsonXmlInstance();
 
-		MavenLibraryDefinitionFile defs = gson.fromXml(raw, MavenLibraryDefinitionFile.class);
+		MavenLibraryDefinitionFile defs = null;
+		try {
+			defs = new MavenDefinitionReader().loadXML(raw).read();
+		} catch (Exception e) {
+			throw new LibraryNotFoundException("Exception while reading POM.XML file");
+		}
 		MavenRepository[] repos = defs.getRepositories().toArray(new MavenRepository[0]);
 
-		for (MavenLibraryDefinition def : defs.getLibraries()) {
+		for (MavenLibraryDefinition def : defs.getDefinitions()) {
 			MavenLibrary library = getLibrary(def.getIdentifier(), repos);
 			if (library == null) {
 				throw new LibraryNotFoundException(new StringBuilder("Unable to find maven library '").append(def.getIdentifier()).append("'").toString());
@@ -280,7 +280,6 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 
 			result.add(library);
 		}
-
 		return result;
 	}
 
@@ -307,11 +306,15 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 		RepositorySystem repoSystem = newRepositorySystem();
 		RepositorySystemSession session = newSession(repoSystem);
 
-		GsonXml gson = GsonUtils.getGsonXmlInstance();
-		MavenLibraryDefinitionFile defs = gson.fromXml(pomFile, MavenLibraryDefinitionFile.class);
+		MavenLibraryDefinitionFile defs = null;
+		try {
+			defs = new MavenDefinitionReader().loadXML(pomFile).read();
+		} catch (Exception e) {
+			throw new LibraryNotFoundException("Exception while reading POM.XML file");
+		}
 		MavenRepository[] repos = defs.getRepositories().toArray(new MavenRepository[0]);
 
-		for (MavenLibraryDefinition def : defs.getLibraries()) {
+		for (MavenLibraryDefinition def : defs.getDefinitions()) {
 			// Process listed enchantments
 
 			try {

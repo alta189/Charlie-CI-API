@@ -21,7 +21,10 @@ package com.alta189.charlie.api.library.definition;
 
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+
 public class BasicLibraryDefinitionFile {
+	@SerializedName("definitions")
 	private List<BasicLibraryDefinition> definitions;
 
 	public List<BasicLibraryDefinition> getDefinitions() {

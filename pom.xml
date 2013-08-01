@@ -33,7 +33,8 @@
 		<version.guice>3.0</version.guice>
 		<version.alta-commons>1.0.0-SNAPSHOT</version.alta-commons>
 		<version.gson>2.2.4</version.gson>
-		<version.gson-xml>0.1.4</version.gson-xml>
+		<version.json-lib>2.4</version.json-lib>
+		<version.xom>1.2.5</version.xom>
 
 		<!-- Apache Commons Versions -->
 		<version.commons.io>2.4</version.commons.io>
@@ -78,6 +79,37 @@
 		<url>https://github.com/alta189/Charlie-CI/issues</url>
 	</issueManagement>
 
+	<!-- Distribution Management -->
+	<distributionManagement>
+		<!-- Releases -->
+		<repository>
+			<id>alta-nexus</id>
+			<name>nexus.alta189</name>
+			<url>http://nexus.alta189.com/content/repositories/releases</url>
+		</repository>
+
+		<!-- Snapshots -->
+		<snapshotRepository>
+			<id>alta-nexus</id>
+			<name>nexus.alta189</name>
+			<url>http://nexus.alta189.com/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<!-- Repositories -->
+	<repositories>
+		<repository>
+			<id>alta-nexus</id>
+			<name>nexus.alta189</name>
+			<url>http://nexus.alta189.com/content/groups/public/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+
 	<!-- Project Dependencies -->
 	<dependencies>
 		<!-- Guava -->
@@ -111,12 +143,20 @@
 			<artifactId>gson</artifactId>
 			<version>${version.gson}</version>
 		</dependency>
-		<!--Gson XML -->
+		<!-- JSON-lib -->
 		<dependency>
-			<groupId>com.stanfy</groupId>
-			<artifactId>gson-xml-java</artifactId>
-			<version>${version.gson-xml}</version>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>${version.json-lib}</version>
+			<classifier>jdk15</classifier>
 		</dependency>
+		<!-- XOM -->
+		<dependency>
+			<groupId>xom</groupId>
+			<artifactId>xom</artifactId>
+			<version>${version.xom}</version>
+		</dependency>
+
 		<!-- Apache Commons -->
 		<!-- commons-io -->
 		<dependency>

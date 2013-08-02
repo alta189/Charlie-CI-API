@@ -31,7 +31,8 @@
 		<version.jline>2.11</version.jline>
 		<version.guava>14.0.1</version.guava>
 		<version.guice>3.0</version.guice>
-		<version.alta-commons>1.0.0-SNAPSHOT</version.alta-commons>
+		<version.alta-commons>1.0.0</version.alta-commons>
+		<version.alta-processors>1.1.1-SNAPSHOT</version.alta-processors>
 		<version.gson>2.2.4</version.gson>
 		<version.json-lib>2.4</version.json-lib>
 		<version.xom>1.2.5</version.xom>
@@ -130,6 +131,12 @@
 			<groupId>com.alta189</groupId>
 			<artifactId>commons</artifactId>
 			<version>${version.alta-commons}</version>
+		</dependency>
+		<!-- alta-processors -->
+		<dependency>
+			<groupId>com.alta189</groupId>
+			<artifactId>processors</artifactId>
+			<version>${version.alta-processors}</version>
 		</dependency>
 		<!-- Guice -->
 		<dependency>
@@ -284,8 +291,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.5.1</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<compilerArguments>
 						<O>-Xlint:all</O>
 						<O>-Xlint:-path</O>

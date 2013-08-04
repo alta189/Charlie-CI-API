@@ -36,7 +36,7 @@ public class BasicLibrary implements Library {
 	/**
 	 * Jar file extension constant
 	 */
-	private static final String EXTENSION = ".jar";
+	protected static final String EXTENSION = ".jar";
 	/**
 	 * Library name
 	 */
@@ -57,6 +57,23 @@ public class BasicLibrary implements Library {
 	 * Library cache
 	 */
 	private final File file;
+
+	/**
+	 * <p>
+	 *     Creates a Library object with the given info
+	 * </p>
+	 *
+	 * @param name  the name of the library, not null
+	 * @param version  the version of the library, not null
+	 * @param file  the file of the library
+	 */
+	public BasicLibrary(String version, String name, File file) {
+		this.version = version;
+		this.name = name;
+		this.file = file;
+		this.url = null;
+		this.md5 = null;
+	}
 
 	/**
 	 * <p>
@@ -90,18 +107,8 @@ public class BasicLibrary implements Library {
 		this.url = url;
 		this.md5 = md5;
 
-		StringBuilder path = new StringBuilder().append(removeSpecialChars(name)).append(File.separator).append(removeSpecialChars(version)).append(EXTENSION);
+		StringBuilder path = new StringBuilder().append(LibraryManager.removeSpecialChars(name)).append(File.separator).append(LibraryManager.removeSpecialChars(version)).append(EXTENSION);
 		file = new File(Charlie.getLibraryManager().getProvider(BasicLibrary.class).getCacheRoot(), path.toString());
-	}
-
-	/**
-	 * Replaces special characters with an underscore
-	 *
-	 * @param str  string to remove special characters from
-	 * @return processed string
-	 */
-	private String removeSpecialChars(String str) {
-		return str.replaceAll("[^a-zA-Z0-9.-]", "_");
 	}
 
 	/**

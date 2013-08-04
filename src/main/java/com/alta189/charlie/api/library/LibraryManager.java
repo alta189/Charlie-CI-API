@@ -22,6 +22,16 @@ package com.alta189.charlie.api.library;
 import java.io.File;
 
 public class LibraryManager {
+	/**
+	 * Replaces special characters with an underscore
+	 *
+	 * @param str  string to remove special characters from
+	 * @return processed string
+	 */
+	protected static String removeSpecialChars(String str) {
+		return str.replaceAll("[^a-zA-Z0-9.-]", "_");
+	}
+
 	public File getCacheDirectory() {
 		return null;
 	}

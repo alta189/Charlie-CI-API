@@ -56,4 +56,8 @@ public class BasicLibraryDefinition {
 	public void setMd5(String md5) {
 		this.md5 = md5;
 	}
+
+	public String getIdentifier() {
+		return new StringBuilder(name).append(":").append(version).toString();
+	}
 }

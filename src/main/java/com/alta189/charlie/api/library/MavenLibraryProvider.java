@@ -19,7 +19,6 @@
  */
 package com.alta189.charlie.api.library;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,7 +56,6 @@ import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
-import org.xml.sax.SAXException;
 
 public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 	private final File cacheRoot;
@@ -268,7 +266,7 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 		try {
 			defs = new MavenDefinitionReader().loadXML(raw).read();
 		} catch (Exception e) {
-			throw new LibraryNotFoundException("Exception while reading POM.XML file");
+			throw new LibraryNotFoundException("Exception while reading maven definition file", e);
 		}
 		MavenRepository[] repos = defs.getRepositories().toArray(new MavenRepository[0]);
 
@@ -285,15 +283,16 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 
 	/**
 	 * <p>
-	 *     Special handling of a maven POM.XML file
+	 * Special handling of a maven POM.XML file
 	 * </p>
 	 * <p>
-	 *     While we use the same structure for a regular maven library definition file,
-	 *     we want to do special handling of a pom file because it does not
-	 *     require that transitive dependencies, or dependencies of dependencies,
-	 *     to be listed while the maven definition file does
+	 * While we use the same structure for a regular maven library definition file,
+	 * we want to do special handling of a pom file because it does not
+	 * require that transitive dependencies, or dependencies of dependencies,
+	 * to be listed while the maven definition file does
 	 * </p>
-	 * @param pomFile  string contents of a pom.xml file, may not be null
+	 *
+	 * @param pomFile string contents of a pom.xml file, may not be null
 	 * @return list of maven libraries
 	 * @throws LibraryNotFoundException
 	 */
@@ -310,7 +309,7 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 		try {
 			defs = new MavenDefinitionReader().loadXML(pomFile).read();
 		} catch (Exception e) {
-			throw new LibraryNotFoundException("Exception while reading POM.XML file");
+			throw new LibraryNotFoundException("Exception while reading POM.XML file", e);
 		}
 		MavenRepository[] repos = defs.getRepositories().toArray(new MavenRepository[0]);
 
@@ -356,9 +355,8 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 						artifacts.put(identifier, artifact);
 					}
 				}
-
 			} catch (LibraryNotFoundException e) {
-			    throw e; // We dont want to wrap LibraryNotFoundException in a LibraryNotFoundException
+				throw e; // We dont want to wrap LibraryNotFoundException in a LibraryNotFoundException
 			} catch (Exception e) {
 				throw new LibraryNotFoundException(new StringBuilder().append("Could not find maven library '").append(def.getIdentifier()).append("'").toString(), e);
 			}

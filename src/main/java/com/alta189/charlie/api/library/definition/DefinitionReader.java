@@ -10,6 +10,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * Abstract definition reader
+ * @param <T> Definitions file type it returns
+ */
 public abstract class DefinitionReader<T> {
 	protected Document doc;
 

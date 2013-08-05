@@ -20,34 +20,82 @@
 package com.alta189.charlie.api.library.definition;
 
 public class MavenLibraryDefinition {
+	/**
+	 * Library's group id
+	 */
 	private String groupId;
+	/**
+	 * Library's artifact id
+	 */
 	private String artifactId;
+	/**
+	 * Library's version
+	 */
 	private String version;
 
+	/**
+	 * Returns the maven group id
+	 *
+	 * @return groupdId of the library
+	 */
 	public String getGroupId() {
 		return groupId;
 	}
 
+	/**
+	 * Sets the maven group id
+	 *
+	 * @param groupId  library's groupId
+	 */
 	public void setGroupId(String groupId) {
 		this.groupId = groupId;
 	}
 
+	/**
+	 * Returns the maven artifact id
+	 *
+	 * @return artifactId of the library
+	 */
 	public String getArtifactId() {
 		return artifactId;
 	}
 
+	/**
+	 * Sets the maven artifact id
+	 *
+	 * @param artifactId  library's artifactId
+	 */
 	public void setArtifactId(String artifactId) {
 		this.artifactId = artifactId;
 	}
 
+	/**
+	 * Returns the maven version
+	 *
+	 * @return version of the library
+	 */
 	public String getVersion() {
 		return version;
 	}
 
+	/**
+	 * Sets the maven version
+	 *
+	 * @param version  library's version
+	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}
 
+	/**
+	 * <p>
+	 *     Returns the identifier of the library.
+	 * </p>
+	 * <p>
+	 *     Same output as {@code getGroupId() + ":" +  getArtifactId() + ":" +  getVersion()}
+	 * </p>
+	 * @return
+	 */
 	public String getIdentifier() {
 		return new StringBuilder(groupId).append(":").append(artifactId).append(":").append(version).toString();
 	}

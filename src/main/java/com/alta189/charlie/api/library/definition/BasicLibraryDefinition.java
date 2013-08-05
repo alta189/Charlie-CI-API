@@ -19,44 +19,108 @@
  */
 package com.alta189.charlie.api.library.definition;
 
+/**
+ * Defubes a basic library
+ */
 public class BasicLibraryDefinition {
+	/**
+	 * Library name
+	 */
 	private String name;
+	/**
+	 * Library version
+	 */
 	private String version;
+	/**
+	 * Library url
+	 */
 	private String url;
+	/**
+	 * Library md5
+	 */
 	private String md5;
 
+	/**
+	 * Return the name of the library
+	 *
+	 * @return library's name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the name of the library
+	 *
+	 * @param name  name of the library
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * Returns the version of the library
+	 *
+	 * @return library's version
+	 */
 	public String getVersion() {
 		return version;
 	}
 
+	/**
+	 * Sets the name of the library
+	 *
+	 * @param version  version of the library
+	 */
 	public void setVersion(String version) {
 		this.version = version;
 	}
 
+	/**
+	 * Returns the url of the library
+	 *
+	 * @return library's url
+	 */
 	public String getUrl() {
 		return url;
 	}
 
+	/**
+	 * Sets the url of the library
+	 *
+	 * @param url  url of the library
+	 */
 	public void setUrl(String url) {
 		this.url = url;
 	}
 
+	/**
+	 * Returns the MD5 hash of the library
+	 *
+	 * @return library's md5 hash
+	 */
 	public String getMd5() {
 		return md5;
 	}
 
+	/**
+	 * Sets the MD5 hash of the library
+	 *
+	 * @param md5  md5 hash of the library
+	 */
 	public void setMd5(String md5) {
 		this.md5 = md5;
 	}
 
+	/**
+	 * <p>
+	 *     Returns the identifier of the library.
+	 * </p>
+	 * <p>
+	 *     Same output as {@code getName() + ":" +  getVersion()}
+	 * </p>
+	 * @return
+	 */
 	public String getIdentifier() {
 		return new StringBuilder(name).append(":").append(version).toString();
 	}

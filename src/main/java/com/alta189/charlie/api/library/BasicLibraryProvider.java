@@ -40,10 +40,24 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.Validate;
 
+/**
+ * Provider for basic libraries
+ */
 public class BasicLibraryProvider implements LibraryProvider<BasicLibrary> {
+	/**
+	 * Cache directory for basic libraries
+	 */
 	private final File root;
+	/**
+	 * Cache of libraries already loaded by the provider
+	 */
 	private final Map<String, BasicLibrary> libraries = new HashMap<String, BasicLibrary>();
 
+	/**
+	 * Constructs an instance of the provider based on its LibraryManager
+	 *
+	 * @param manager  LibraryManagor of the provider
+	 */
 	public BasicLibraryProvider(LibraryManager manager) {
 		root = new File(manager.getCacheDirectory(), "basic");
 		if (!root.exists()) {

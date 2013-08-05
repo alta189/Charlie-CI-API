@@ -58,13 +58,37 @@ import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
 
 public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
+	/**
+	 * Directory for local cache of the repository
+	 */
 	private final File cacheRoot;
+	/**
+	 * Maven repository system
+	 */
 	private final RepositorySystem repoSystem;
+	/**
+	 * Repository system session
+	 */
 	private final RepositorySystemSession session;
+	/**
+	 * Cache of repositories loaded by the repository
+	 */
 	private final Map<String, RemoteRepository> repositories;
+	/**
+	 * Cache of libraries loaded by the provider
+	 */
 	private final Map<String, MavenLibrary> libraries;
+	/**
+	 * The maven central repository
+	 */
 	private final MavenRepository central;
 
+	/**
+	 * Constructs a new instance of the MavenLibraryProvider
+	 * using its LibraryManager
+	 *
+	 * @param manager  LibraryManager of the provider
+	 */
 	public MavenLibraryProvider(LibraryManager manager) {
 		cacheRoot = new File(manager.getCacheDirectory(), "maven");
 
@@ -78,10 +102,21 @@ public class MavenLibraryProvider implements LibraryProvider<MavenLibrary> {
 		resolveRepository(central);
 	}
 
+	/**
+	 * Creates a new repository system
+	 *
+	 * @return new repository system
+	 */
 	private RepositorySystem newRepositorySystem() {
 		return Guice.createInjector(new AetherModule()).getInstance(RepositorySystem.class);
 	}
 
+	/**
+	 * Creates a new session of a repository system
+	 *
+	 * @param system  repository system that needs a new session
+	 * @return new repository system session
+	 */
 	private RepositorySystemSession newSession(RepositorySystem system) {
 		DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
 

@@ -21,22 +21,51 @@ package com.alta189.charlie.api.library.definition;
 
 import java.util.List;
 
+/**
+ * Definition file for maven libraries
+ */
 public class MavenLibraryDefinitionFile {
+	/**
+	 * List of definitions
+	 */
 	private List<MavenLibraryDefinition> definitions;
+	/**
+	 * Kist of maven repositories
+	 */
 	private List<MavenRepositoryDefinition> repositories;
 
+	/**
+	 * Returns list of definitions
+	 *
+	 * @return definitions list
+	 */
 	public List<MavenLibraryDefinition> getDefinitions() {
 		return definitions;
 	}
 
+	/**
+	 * Sets the list of definitions
+	 *
+	 * @param definitions list of definitions
+	 */
 	public void setDefinitions(List<MavenLibraryDefinition> definitions) {
 		this.definitions = definitions;
 	}
 
+	/**
+	 * Returns the list of maven repositories
+	 *
+	 * @return repository list
+	 */
 	public List<MavenRepositoryDefinition> getRepositories() {
 		return repositories;
 	}
 
+	/**
+	 * Sets the list of maven repositories
+	 *
+	 * @param repositories  list of repositories
+	 */
 	public void setRepositories(List<MavenRepositoryDefinition> repositories) {
 		this.repositories = repositories;
 	}

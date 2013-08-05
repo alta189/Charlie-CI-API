@@ -10,12 +10,29 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Reads a basic definition file
+ */
 public class BasicDefinitionReader extends DefinitionReader<BasicLibraryDefinitionFile> {
+	/**
+	 * Parses the xml String
+	 *
+	 * @param raw  raw xml String
+	 * @return this object
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws SAXException
+	 */
 	@Override
 	public BasicDefinitionReader loadXML(String raw) throws ParserConfigurationException, IOException, SAXException {
 		return super.loadXML(raw);
 	}
 
+	/**
+	 * Parses the XML document and coverts it to a BasicLibraryDefinitionFile object
+	 *
+	 * @return definition file
+	 */
 	@Override
 	public BasicLibraryDefinitionFile read() {
 		NodeList definitions = super.doc.getElementsByTagName("definition");

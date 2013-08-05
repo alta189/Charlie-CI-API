@@ -23,14 +23,30 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Definition file for basic libraries
+ */
 public class BasicLibraryDefinitionFile {
+	/**
+	 * List of definitions in the definition file
+	 */
 	@SerializedName("definitions")
 	private List<BasicLibraryDefinition> definitions;
 
+	/**
+	 * Returns list of definitions
+	 *
+	 * @return definitions
+	 */
 	public List<BasicLibraryDefinition> getDefinitions() {
 		return definitions;
 	}
 
+	/**
+	 * Sets the list of definitions
+	 *
+	 * @param definitions  list of definitions
+	 */
 	public void setDefinitions(List<BasicLibraryDefinition> definitions) {
 		this.definitions = definitions;
 	}

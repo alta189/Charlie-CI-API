@@ -19,31 +19,73 @@
  */
 package com.alta189.charlie.api.library.definition;
 
+/**
+ * Defines a maven repository
+ */
 public class MavenRepositoryDefinition {
+	/**
+	 * Maven reposotory id, must be unique
+	 */
 	private String id;
+	/**
+	 * Maven repository type, may be null
+	 */
 	private String type;
+	/**
+	 * Maven repository url
+	 */
 	private String url;
 
+	/**
+	 * Returns the id of the repository
+	 *
+	 * @return id of the repository
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * Sets the id of the repository
+	 *
+	 * @param id  repository's id
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
 
+	/**
+	 * Returns the type of the repository
+	 *
+	 * @return maven repository type
+	 */
 	public String getType() {
 		return type;
 	}
 
+	/**
+	 * Sets the type of the repository
+	 *
+	 * @param type  maven repository type
+	 */
 	public void setType(String type) {
 		this.type = type;
 	}
 
+	/**
+	 * Returns the url of the repository
+	 *
+	 * @return maven repository url
+	 */
 	public String getUrl() {
 		return url;
 	}
 
+	/**
+	 * Sets the url of the repository
+	 *
+	 * @param url  maven repository url
+	 */
 	public void setUrl(String url) {
 		this.url = url;
 	}
